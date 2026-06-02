@@ -73,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function iniciarConversa() {
         if (socket && socket.connected) return;
 
-        socket = io(URL_BACKEND);
+        socket = io(URL_BACKEND, {
+            transports: ['websocket'],
+            withCredentials: true
+        });
 
         socket.on('connect', () => {
             console.log('Conectado ao servidor Socket.IO! SID:', socket.id);
@@ -82,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
             addMessageToChat('Status', 'Conectado ao servidor de chat.', 'status');
             setChatEnabled(true);
         });
+
+
 
         socket.on('disconnect', () => {
             console.log('Desconectado do servidor Socket.IO.');
