@@ -36,8 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
             sender = 'Status';
         }
 
+        // Altere apenas esta parte dentro da função addMessageToChat no seu script.js:
         const senderSpan = document.createElement('strong');
-        senderSpan.textContent = `${sender}: `;
+        senderSpan.textContent = sender; // Removido o ': ' para um visual mais Clean UI
         messageElement.appendChild(senderSpan);
 
         const textSpan = document.createElement('span');
