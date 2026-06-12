@@ -1,346 +1,653 @@
-/* --- Variáveis de Design (Paleta Galáxia) --- */
+/* ============================================================
+   SISTEMA DE DEFESA NACIONAL — UI v2.0
+   Tema: Forças Armadas & Segurança Pública Brasileira
+   ============================================================ */
+
+/* --- Tokens de Design --- */
 :root {
-  --bg-space: #06060c;
-  --panel-bg: rgba(18, 11, 32, 0.65);
-  --border-neon: rgba(147, 51, 234, 0.3);
-  --purple-primary: #a855f7;
-  --purple-hover: #c084fc;
-  --cyan-neon: #06b6d4;
-  --pink-neon: #ec4899;
-  --text-light: #f3f4f6;
-  --text-muted: #9ca3af;
-  --bot-msg-bg: rgba(30, 27, 46, 0.85);
-  --user-msg-bg: linear-gradient(135deg, #6d28d9, #4c1d95);
+    /* Background */
+    --bg-zero:        #080c06;
+    --panel-bg:       rgba(11, 18, 9, 0.90);
+    --chat-bg:        rgba(6, 10, 5, 0.50);
+
+    /* Paleta militar */
+    --green-field:    #1e3a16;
+    --green-army:     #2d5a1f;
+    --green-accent:   #4a7c35;
+    --green-light:    #6aad4a;
+    --navy-depth:     #152844;
+    --navy-accent:    #1e3a5f;
+
+    /* Insignes & dourado */
+    --brass:          #c49a0a;
+    --brass-light:    #d4aa1a;
+    --brass-bright:   #e8c244;
+
+    /* Texto */
+    --bone:           #ccc8a8;
+    --bone-dim:       #a8a488;
+    --khaki:          #7a7055;
+    --khaki-dark:     #504838;
+
+    /* Feedback */
+    --signal-on:      #4ade80;
+    --signal-off:     #f87171;
+    --signal-warn:    #fbbf24;
+
+    /* Bordas */
+    --border-brass:   rgba(196, 154, 10, 0.30);
+    --border-green:   rgba(74, 124, 53, 0.35);
+    --border-glow:    rgba(196, 154, 10, 0.50);
+
+    /* Sombras */
+    --shadow-panel:   0 8px 40px rgba(0,0,0,0.80), 0 0 0 1px rgba(196,154,10,0.08);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* --- Reset & base --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: radial-gradient(circle at center, #1e113a 0%, var-webkit-radial-gradient #0c0714 70%, var(--bg-space) 100%);
-  background-color: var(--bg-space);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  color: var(--text-light);
-  gap: 24px;
-  padding: 20px;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: var(--bg-zero);
+    background-image:
+        radial-gradient(ellipse 60% 50% at 15% 50%, rgba(30, 58, 22, 0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 85% 50%, rgba(21, 40, 68, 0.18) 0%, transparent 70%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    gap: 20px;
+    padding: 20px;
+    color: var(--bone);
+    position: relative;
 }
 
-/* --- Containers com Glassmorphism --- */
-.chat-container {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-neon);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 
-              0 0 15px rgba(147, 51, 234, 0.15);
-  width: 100%;
-  max-width: 450px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 85vh;
-  max-height: 650px;
-  transition: all 0.3s ease;
+/* ============================================================
+   GRID TÁTICO DE FUNDO (signature element — suave)
+   ============================================================ */
+.tactical-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(196, 154, 10, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196, 154, 10, 0.025) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.chat-container:hover {
-  border-color: rgba(147, 51, 234, 0.5);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), 
-              0 0 25px rgba(147, 51, 234, 0.25);
+/* ============================================================
+   PAINEL BASE — glassmorphism tático
+   ============================================================ */
+.panel {
+    position: relative;
+    z-index: 1;
+    background: var(--panel-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border-brass);
+    border-radius: 3px;
+    width: 100%;
+    height: 88vh;
+    max-height: 680px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--shadow-panel);
+    transition: box-shadow 0.3s ease;
 }
 
-/* Painel Esquerdo (Avatar e Controles) */
+/* Faixa dourada no topo — barra de status clássica de terminal */
+.panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 5%, var(--brass) 40%, var(--brass-bright) 50%, var(--brass) 60%, transparent 95%);
+    opacity: 0.55;
+    z-index: 10;
+}
+
+.panel:hover {
+    box-shadow: var(--shadow-panel), 0 0 30px rgba(196, 154, 10, 0.06);
+    border-color: rgba(196, 154, 10, 0.45);
+}
+
+/* ============================================================
+   PAINEL DE CONTROLE (esquerdo)
+   ============================================================ */
 .control-panel {
-  justify-content: space-between;
-  padding: 20px;
+    max-width: 280px;
+    padding: 18px;
+    justify-content: space-between;
+    gap: 14px;
 }
 
-.avatar-area {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  margin-bottom: 20px;
+/* Seções com separadores */
+.panel-section {
+    border-bottom: 1px solid var(--border-brass);
+    padding-bottom: 14px;
+}
+.panel-footer {
+    border-bottom: none;
+    border-top: 1px solid var(--border-brass);
+    padding-bottom: 0;
+    padding-top: 10px;
+    text-align: center;
 }
 
-.avatar-area img {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4)) hue-rotate(45deg);
+/* Cabeçalho do painel */
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-#controles {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Emblema circular */
+.emblem-ring {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--brass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(196, 154, 10, 0.12), transparent);
+    box-shadow: 0 0 14px rgba(196, 154, 10, 0.18), inset 0 0 8px rgba(196, 154, 10, 0.08);
+    font-size: 18px;
+    filter: drop-shadow(0 0 4px rgba(196, 154, 10, 0.4));
 }
 
-/* Botões do Painel de Controle */
-#controles button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.95em;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+/* ============================================================
+   AVATAR COM MIRA TÁTICA (reticle corners — signature element)
+   ============================================================ */
+.avatar-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-#iniciarBtn {
-  background: linear-gradient(135deg, #059669, #10b981);
-  color: white;
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-}
-#iniciarBtn:hover { 
-  background: linear-gradient(135deg, #047857, #059669);
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-}
-
-#limparBtn {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid #f59e0b !important;
-  color: #fbbf24;
-}
-#limparBtn:hover {
-  background: #f59e0b;
-  color: #000;
+.avatar-frame {
+    position: relative;
+    width: 152px;
+    height: 152px;
+    border: 1px solid var(--border-brass);
+    border-radius: 4px;
+    overflow: hidden;
+    background: rgba(21, 40, 68, 0.3);
 }
 
-#encerrarBtn {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid #ef4444 !important;
-  color: #fca5a5;
+/* Cantos de mira tática */
+.reticle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 2;
+    pointer-events: none;
 }
-#encerrarBtn:hover {
-  background: #ef4444;
-  color: white;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+.reticle-tl {
+    top: 7px; left: 7px;
+    border-top: 2px solid var(--brass);
+    border-left: 2px solid var(--brass);
+    box-shadow: 2px 2px 0 rgba(196, 154, 10, 0.15);
+}
+.reticle-br {
+    bottom: 7px; right: 7px;
+    border-bottom: 2px solid var(--brass);
+    border-right: 2px solid var(--brass);
+    box-shadow: -2px -2px 0 rgba(196, 154, 10, 0.15);
 }
 
-/* --- Painel do Chat --- */
+/* Vinheta suave na base */
+.avatar-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 55%, rgba(8, 12, 6, 0.65));
+    z-index: 1;
+    pointer-events: none;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: sepia(15%) hue-rotate(-5deg) saturate(0.85) brightness(0.88);
+    transition: filter 0.4s ease;
+}
+.avatar-img:hover { filter: sepia(5%) saturate(1.0) brightness(0.95); }
+
+/* ============================================================
+   BARRA DE STATUS
+   ============================================================ */
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-brass);
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--khaki);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+.status-dot.on {
+    background: var(--signal-on);
+    box-shadow: 0 0 8px var(--signal-on), 0 0 18px rgba(74, 222, 128, 0.3);
+    animation: pulse-signal 2.4s ease-in-out infinite;
+}
+.status-dot.off {
+    background: var(--signal-off);
+    box-shadow: 0 0 8px var(--signal-off);
+}
+
+@keyframes pulse-signal {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.55; transform: scale(0.85); }
+}
+
+/* ============================================================
+   BOTÕES DE CONTROLE
+   ============================================================ */
+.ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    border-width: 1px;
+    border-style: solid;
+}
+.btn-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.btn-start {
+    background: rgba(30, 58, 22, 0.20);
+    border-color: rgba(74, 222, 128, 0.30);
+    color: var(--signal-on);
+}
+.btn-start:hover {
+    background: rgba(30, 58, 22, 0.40);
+    border-color: rgba(74, 222, 128, 0.60);
+    box-shadow: 0 0 14px rgba(74, 222, 128, 0.12);
+}
+
+.btn-clear {
+    background: rgba(196, 154, 10, 0.08);
+    border-color: var(--border-brass);
+    color: var(--brass-light);
+}
+.btn-clear:hover {
+    background: rgba(196, 154, 10, 0.18);
+    border-color: var(--brass-light);
+    box-shadow: 0 0 14px rgba(196, 154, 10, 0.12);
+}
+
+.btn-end {
+    background: rgba(120, 20, 20, 0.12);
+    border-color: rgba(248, 113, 113, 0.28);
+    color: var(--signal-off);
+}
+.btn-end:hover {
+    background: rgba(120, 20, 20, 0.28);
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow: 0 0 14px rgba(248, 113, 113, 0.12);
+}
+
+/* ============================================================
+   PAINEL DE CHAT (direito)
+   ============================================================ */
+.chat-panel { max-width: 480px; }
+
+/* --- Cabeçalho --- */
 .chat-header {
-  background: rgba(20, 15, 38, 0.8);
-  padding: 18px;
-  text-align: center;
-  border-bottom: 1px solid var(--border-neon);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 18px;
+    background: rgba(6, 10, 5, 0.60);
+    border-bottom: 1px solid var(--border-brass);
+    flex-shrink: 0;
 }
 
-.chat-header h1 {
-  margin: 0;
-  font-size: 1.3em;
-  letter-spacing: 1.5px;
-  background: linear-gradient(to right, #fff, var(--purple-primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
+.header-shield {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-brass);
+    border-radius: 3px;
+    color: var(--brass-light);
+    background: rgba(196, 154, 10, 0.07);
+    flex-shrink: 0;
 }
 
-#connection-status {
-  font-size: 0.8em;
-  margin-top: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.chat-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, var(--bone), var(--brass-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: normal;
 }
 
-#connection-status::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+/* Indicador de conexão inline */
+.conn-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--khaki);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+.conn-dot.on {
+    background: var(--signal-on);
+    box-shadow: 0 0 6px var(--signal-on);
+    animation: pulse-signal 2.4s ease-in-out infinite;
+}
+.conn-dot.off {
+    background: var(--signal-off);
+    box-shadow: 0 0 6px var(--signal-off);
 }
 
-.status-online { 
-  color: var(--cyan-neon); 
-}
-.status-online::before {
-  background-color: var(--cyan-neon);
-  box-shadow: 0 0 8px var(--cyan-neon);
-}
-
-.status-offline { 
-  color: var(--pink-neon); 
-}
-.status-offline::before {
-  background-color: var(--pink-neon);
-  box-shadow: 0 0 8px var(--pink-neon);
+.header-badge {
+    padding: 4px 10px;
+    border: 1px solid var(--border-brass);
+    border-radius: 2px;
+    background: rgba(196, 154, 10, 0.05);
+    font-family: 'Share Tech Mono', monospace;
 }
 
-/* Caixa de Mensagens */
+/* --- Área de mensagens --- */
 .chat-box {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background: rgba(10, 7, 18, 0.4);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    flex: 1;
+    padding: 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--chat-bg);
 }
 
-/* Balões de Mensagem */
+/* --- Bolhas de mensagem --- */
 .message {
-  line-height: 1.5;
-  padding: 12px 16px;
-  border-radius: 16px;
-  max-width: 85%;
-  word-wrap: break-word;
-  font-size: 0.95em;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  animation: fadeIn 0.3s ease;
+    line-height: 1.65;
+    padding: 11px 15px;
+    border-radius: 3px;
+    max-width: 87%;
+    word-wrap: break-word;
+    font-size: 0.91rem;
+    animation: msg-in 0.22s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes msg-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Rótulo do remetente */
+.message > strong {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.60;
+    margin-bottom: 6px;
+    font-weight: normal;
+}
+
+/* Mensagem do usuário — tom Marinha */
 .user-message {
-  background: var(--user-msg-bg);
-  color: #ffffff;
-  margin-left: auto;
-  border-bottom-right-radius: 4px;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(21, 40, 68, 0.92), rgba(30, 58, 95, 0.88));
+    color: #c8ddf0;
+    margin-left: auto;
+    border: 1px solid rgba(30, 58, 95, 0.80);
+    border-top-color: rgba(74, 120, 180, 0.50);
 }
+.user-message > strong { color: #7aaad8; }
 
+/* Mensagem do bot — verde campo com phosphor-glow (signature) */
 .bot-message {
-  background: var(--bot-msg-bg);
-  color: #e2e8f0;
-  margin-right: auto;
-  border-bottom-left-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(14, 24, 11, 0.88);
+    color: var(--bone);
+    margin-right: auto;
+    border: 1px solid rgba(45, 90, 31, 0.55);
+    border-top-color: rgba(74, 124, 53, 0.55);
 }
+.bot-message > strong { color: #7aaa6a; }
+/* Efeito phosphor: texto do bot com leve brilho verde */
+.bot-message span { text-shadow: 0 0 12px rgba(74, 173, 74, 0.12); }
 
-.message strong {
-  font-size: 0.8em;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.7;
-  display: block;
-  margin-bottom: 4px;
-}
-
-/* Mensagens de Sistema/Status */
+/* Mensagens de sistema */
 .status-message {
-  background: rgba(147, 51, 234, 0.1);
-  border: 1px solid rgba(147, 51, 234, 0.3);
-  color: #d8b4fe;
-  font-size: 0.85em;
-  text-align: center;
-  margin: 4px auto;
-  max-width: 100%;
-  width: 100%;
-  border-radius: 8px;
-  padding: 8px;
+    background: rgba(196, 154, 10, 0.05);
+    border: 1px solid var(--border-brass);
+    color: var(--khaki);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.76rem;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+    border-radius: 2px;
+    padding: 6px 12px;
 }
-.status-message strong { display: inline; margin-right: 5px; color: var(--purple-primary); }
+.status-message > strong {
+    display: inline;
+    margin-right: 6px;
+    color: var(--brass);
+    font-size: inherit;
+    opacity: 1;
+}
 
 .error-text {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+    background: rgba(120, 20, 20, 0.10) !important;
+    border-color: rgba(248, 113, 113, 0.30) !important;
+    color: #f87171 !important;
 }
-.error-text strong { color: #ef4444; }
+.error-text > strong { color: var(--signal-off) !important; }
 
-/* --- Input Area --- */
-.chat-input-area {
-  display: flex;
-  padding: 16px;
-  background: rgba(15, 11, 28, 0.9);
-  border-top: 1px solid var(--border-neon);
-  gap: 10px;
-}
-
-#message-input {
-  flex-grow: 1;
-  padding: 12px 18px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: white;
-  font-size: 0.95em;
-  transition: all 0.2s ease;
+/* ============================================================
+   ÁREA DE INPUT
+   ============================================================ */
+.chat-footer {
+    padding: 14px 16px;
+    background: rgba(6, 9, 5, 0.80);
+    border-top: 1px solid var(--border-brass);
+    flex-shrink: 0;
 }
 
-#message-input:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--purple-primary);
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+.input-row {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border-brass);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-row:focus-within {
+    border-color: var(--border-glow);
+    box-shadow: 0 0 14px rgba(196, 154, 10, 0.10);
 }
 
-#message-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+.input-icon {
+    width: 17px; height: 17px;
+    margin-left: 14px;
+    color: var(--khaki);
+    flex-shrink: 0;
 }
 
-#send-button {
-  padding: 0 16px;
-  background: var(--purple-primary);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+.msg-input {
+    flex: 1;
+    padding: 12px 12px;
+    background: transparent;
+    border: none;
+    color: var(--bone);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.90rem;
 }
+.msg-input::placeholder { color: var(--khaki-dark); font-family: 'Share Tech Mono', monospace; font-size: 0.80rem; letter-spacing: 0.5px; }
+.msg-input:focus { outline: none; }
+.msg-input:disabled { opacity: 0.35; cursor: not-allowed; }
 
-#send-button:hover {
-  background: var(--purple-hover);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
-  transform: scale(1.03);
+.send-btn {
+    padding: 0 18px;
+    min-height: 48px;
+    background: linear-gradient(135deg, var(--green-field), var(--green-army));
+    border: none;
+    border-left: 1px solid var(--border-brass);
+    color: #acd898;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
 }
+.send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--green-army), var(--green-accent));
+    color: #d8f0c0;
+}
+.send-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 
-/* --- Markdown Customization --- */
+/* ============================================================
+   MARKDOWN CUSTOMIZADO
+   ============================================================ */
+/* Strong dentro do markdown — não herdar os estilos do rótulo */
+.message span strong {
+    display: inline;
+    font-family: inherit;
+    font-size: 1em;
+    letter-spacing: normal;
+    text-transform: none;
+    opacity: 1;
+    color: var(--brass-light);
+    font-weight: 600;
+}
+.user-message span strong { color: #90c0e8; }
+
 .message span p { margin-bottom: 8px; }
 .message span p:last-child { margin-bottom: 0; }
-.message span ul, .message span ol { margin-left: 20px; margin-bottom: 8px; }
+.message span ul, .message span ol { margin-left: 18px; margin-bottom: 8px; }
+.message span li { margin-bottom: 3px; }
 
 .message span pre {
-  background-color: #090514;
-  color: #e2e8f0;
-  padding: 12px;
-  border-radius: 8px;
-  overflow-x: auto;
-  margin: 8px 0;
-  border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(4, 7, 3, 0.85);
+    padding: 12px;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: 8px 0;
+    border: 1px solid var(--border-brass);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.86rem;
 }
 
 .message span code {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #f472b6;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9em;
+    background: rgba(196, 154, 10, 0.10);
+    color: var(--brass-light);
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.87em;
 }
-
 .message span pre code {
-  background-color: transparent;
-  color: inherit;
-  padding: 0;
+    background: transparent;
+    color: #9acd88;
+    padding: 0;
 }
 
-/* Scrollbar Espacial */
-.chat-box::-webkit-scrollbar { width: 6px; }
+.message span h1, .message span h2, .message span h3 {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--brass-light);
+    letter-spacing: 1px;
+    margin: 10px 0 6px;
+}
+
+.message span blockquote {
+    border-left: 3px solid var(--brass);
+    padding-left: 12px;
+    color: var(--bone-dim);
+    margin: 8px 0;
+}
+
+.message span hr {
+    border: none;
+    border-top: 1px solid var(--border-brass);
+    margin: 10px 0;
+}
+
+/* ============================================================
+   UTILITÁRIOS TIPOGRÁFICOS
+   ============================================================ */
+.label-xs {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+.label-sm {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+.text-brass   { color: var(--brass); }
+.text-bone    { color: var(--bone); }
+.text-khaki   { color: var(--khaki); }
+.text-bold    { font-weight: 600; }
+
+/* ============================================================
+   SCROLLBAR TÁTICA
+   ============================================================ */
+.chat-box::-webkit-scrollbar { width: 4px; }
 .chat-box::-webkit-scrollbar-track { background: transparent; }
-.chat-box::-webkit-scrollbar-thumb { background: rgba(147, 51, 234, 0.3); border-radius: 10px; }
-.chat-box::-webkit-scrollbar-thumb:hover { background: var(--purple-primary); }
+.chat-box::-webkit-scrollbar-thumb { background: rgba(196, 154, 10, 0.22); border-radius: 2px; }
+.chat-box::-webkit-scrollbar-thumb:hover { background: var(--brass); }
+
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+@media (max-width: 780px) {
+    body { flex-direction: column; padding: 12px; gap: 12px; }
+    .control-panel { max-width: 100%; height: auto; min-height: unset; flex-direction: row; flex-wrap: wrap; gap: 12px; }
+    .avatar-section { flex-direction: row; gap: 16px; }
+    .avatar-frame  { width: 90px; height: 90px; }
+    .chat-panel { max-width: 100%; height: 70vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-dot, .conn-dot { animation: none !important; }
+    .message { animation: none !important; }
+}
