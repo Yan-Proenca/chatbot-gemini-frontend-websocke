@@ -156,9 +156,9 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;       
     padding: 12px 14px;
-    min-height: 0;
+    min-height: 0;   
 }
 .panel-scroll-area::-webkit-scrollbar { width: 3px; }
 .panel-scroll-area::-webkit-scrollbar-track { background: transparent; }
@@ -254,6 +254,9 @@ body {
     border-radius: 3px;
     overflow: hidden;
     background: rgba(0,0,0,0.28);
+    display: flex;         /* Adicionado */
+    flex-direction: column;/* Adicionado */
+    min-height: 0;         /* Adicionado para permitir scroll interno */
 }
 
 .params-header {
@@ -291,11 +294,18 @@ body {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 9px;
-    overflow: hidden;
-    max-height: 1200px;
+    gap: 12px;             /* Ajustado para espaçar melhor os filtros */
+    overflow-y: auto;      /* MODIFICADO: Ativa o scroll vertical aqui */
+    overflow-x: hidden;    /* Garante que nada escape para os lados */
+    max-height: 290px;     /* MODIFICADO: Altura ideal para exibir os blocos sem sumir */
     transition: max-height 0.32s ease, padding 0.32s ease;
 }
+
+/* Adicionando a mesma scrollbar estilizada que você usa no sistema */
+.params-body::-webkit-scrollbar { width: 3px; }
+.params-body::-webkit-scrollbar-track { background: transparent; }
+.params-body::-webkit-scrollbar-thumb { background: rgba(196, 154, 10, 0.25); border-radius: 2px; }
+.params-body::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 .params-body.params-collapsed {
     max-height: 0;
     padding-top: 0;
@@ -916,7 +926,8 @@ body {
 /* Sempre expandido em desktop */
 @media (min-width: 821px) {
     .params-toggle { display: none !important; }
-    .params-body.params-collapsed { max-height: 1200px !important; padding: 10px !important; }
+    /* Atualizado para manter a altura máxima do scroll ativo */
+    .params-body.params-collapsed { max-height: 290px !important; padding: 10px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
