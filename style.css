@@ -156,9 +156,9 @@ body {
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 12px;       
+    gap: 10px;
     padding: 12px 14px;
-    min-height: 0;   
+    min-height: 0;
 }
 .panel-scroll-area::-webkit-scrollbar { width: 3px; }
 .panel-scroll-area::-webkit-scrollbar-track { background: transparent; }
@@ -254,9 +254,6 @@ body {
     border-radius: 3px;
     overflow: hidden;
     background: rgba(0,0,0,0.28);
-    display: flex;         /* Adicionado */
-    flex-direction: column;/* Adicionado */
-    min-height: 0;         /* Adicionado para permitir scroll interno */
 }
 
 .params-header {
@@ -294,22 +291,17 @@ body {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 12px;             /* Ajustado para espaçar melhor os filtros */
-    overflow-y: auto;      /* MODIFICADO: Ativa o scroll vertical aqui */
-    overflow-x: hidden;    /* Garante que nada escape para os lados */
-    max-height: 290px;     /* MODIFICADO: Altura ideal para exibir os blocos sem sumir */
+    gap: 9px;
+    /* overflow: hidden REMOVIDO — .mission-params já faz o clipping
+       para a animação de colapso; manter aqui bloqueava o scroll */
+    max-height: 1200px;
     transition: max-height 0.32s ease, padding 0.32s ease;
 }
-
-/* Adicionando a mesma scrollbar estilizada que você usa no sistema */
-.params-body::-webkit-scrollbar { width: 3px; }
-.params-body::-webkit-scrollbar-track { background: transparent; }
-.params-body::-webkit-scrollbar-thumb { background: rgba(196, 154, 10, 0.25); border-radius: 2px; }
-.params-body::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 .params-body.params-collapsed {
     max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
+    overflow: hidden; /* só bloqueia quando realmente colapsado */
 }
 
 /* ── Grupo de filtros ─────────────────────────────────────── */
@@ -870,10 +862,19 @@ body {
 /* ============================================================
    SCROLLBARS
    ============================================================ */
-.chat-box::-webkit-scrollbar { width: 4px; }
-.chat-box::-webkit-scrollbar-track { background: transparent; }
-.chat-box::-webkit-scrollbar-thumb { background: rgba(196,154,10,0.20); border-radius: 2px; }
-.chat-box::-webkit-scrollbar-thumb:hover { background: var(--brass); }
+.chat-box::-webkit-scrollbar,
+.panel-scroll-area::-webkit-scrollbar { width: 4px; }
+
+.chat-box::-webkit-scrollbar-track,
+.panel-scroll-area::-webkit-scrollbar-track { background: transparent; }
+
+.chat-box::-webkit-scrollbar-thumb,
+.panel-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(196,154,10,0.20);
+    border-radius: 2px;
+}
+.chat-box::-webkit-scrollbar-thumb:hover,
+.panel-scroll-area::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 
 /* ============================================================
    RESPONSIVIDADE MÓVEL
@@ -885,40 +886,57 @@ body {
         padding: 10px;
         gap: 10px;
     }
+
+    /* Painel de controle: altura auto no mobile, sem max-height que
+       quebre o layout — o scroll fica dentro do panel-scroll-area */
     .control-panel {
         max-width: 100%;
         height: auto;
         max-height: none;
     }
+
+    /* CORREÇÃO PRINCIPAL:
+       Mantém flex-direction: column e overflow-y: auto (base).
+       Define max-height explícito para que o overflow REALMENTE role.
+       Remover flex-direction:row, flex-wrap e overflow:visible
+       que impediam qualquer scroll vertical. */
     .panel-scroll-area {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        max-height: none;
-        overflow: visible;
+        flex-direction: column;   /* mantém layout vertical */
+        flex-wrap: nowrap;        /* sem wrap */
+        align-items: stretch;
+        max-height: 260px;        /* altura máxima → scroll ativa quando passa */
+        overflow-y: auto;         /* scroll vertical habilitado */
+        overflow-x: hidden;
     }
+
+    /* Avatar compacto em linha no mobile */
     .avatar-section {
         flex-direction: row;
         gap: 12px;
         align-items: center;
         flex-shrink: 0;
     }
-    .avatar-frame { width: 78px; height: 78px; }
-    .mission-params { flex: 1; min-width: 180px; }
+    .avatar-frame { width: 72px; height: 72px; }
+
+    /* Params ocupa largura toda (não é mais item de row) */
+    .mission-params { width: 100%; }
+
+    /* Botão de toggle visível no mobile */
     .params-toggle { display: flex !important; }
 
+    /* Botões de controle em linha */
     .panel-bottom {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 6px;
     }
-    .panel-bottom .status-bar { order: -1; width: 100%; }
-    .panel-bottom #controles { flex-direction: row; flex: 1; min-width: 0; }
+    .panel-bottom .status-bar  { order: -1; width: 100%; }
+    .panel-bottom #controles   { flex-direction: row; flex: 1; min-width: 0; }
     .panel-bottom .panel-footer { width: 100%; }
-    .ctrl-btn { font-size: 0.66rem; padding: 8px 5px; }
-    .btn-icon { width: 11px; height: 11px; }
+    .ctrl-btn  { font-size: 0.65rem; padding: 8px 5px; }
+    .btn-icon  { width: 11px; height: 11px; }
 
-    .chat-panel { flex: 1; min-height: 52vh; }
+    .chat-panel  { flex: 1; min-height: 50vh; }
     .chat-header { flex-wrap: wrap; }
     .active-context { width: 100%; justify-content: center; }
 }
@@ -926,8 +944,7 @@ body {
 /* Sempre expandido em desktop */
 @media (min-width: 821px) {
     .params-toggle { display: none !important; }
-    /* Atualizado para manter a altura máxima do scroll ativo */
-    .params-body.params-collapsed { max-height: 290px !important; padding: 10px !important; }
+    .params-body.params-collapsed { max-height: 1200px !important; padding: 10px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
