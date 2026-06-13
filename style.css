@@ -121,8 +121,11 @@ body {
    PAINEL DE CONTROLE (esquerdo)
    ============================================================ */
 .control-panel {
-    max-width: 308px;
-    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0; /* Impede que o painel estoure flexbox pai */
+    overflow: hidden;
 }
 
 /* Cabeçalho fixo */
@@ -152,13 +155,11 @@ body {
 /* Área scrollável */
 .panel-scroll-area {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow-y: auto; /* Permite rolar os parâmetros caso a tela seja baixa */
+    padding-right: 4px; /* Espaço para a barra de rolagem não cobrir o texto */
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 12px 14px;
-    min-height: 0;
+    gap: 16px;
 }
 .panel-scroll-area::-webkit-scrollbar { width: 3px; }
 .panel-scroll-area::-webkit-scrollbar-track { background: transparent; }
@@ -250,12 +251,28 @@ body {
    PARÂMETROS DE MISSÃO (Filtros)
    ============================================================ */
 .mission-params {
-    border: 1px solid var(--border-brass);
-    border-radius: 3px;
-    overflow: hidden;
-    background: rgba(0,0,0,0.28);
+    position: relative;
+    z-index: 10; /* Garante que fique acima de backgrounds decorativos */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
 }
 
+/* Garante que os seletores customizados e labels tenham clique livre */
+.param-group {
+    position: relative;
+    z-index: 11;
+    pointer-events: auto !important; /* Força o navegador a aceitar cliques */
+}
+
+/* Caso use selects nativos ou customizados, adicione um padding confortável */
+.param-group select, 
+.param-group input {
+    cursor: pointer;
+    position: relative;
+    z-index: 12;
+}
 .params-header {
     display: flex;
     align-items: center;
@@ -898,9 +915,11 @@ body {
     .params-toggle { display: flex !important; }
 
     .panel-bottom {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 6px;
+    margin-top: auto; /* Empurra os botões para o final do painel de forma limpa */
+    background: var(--bg-zero);
+    z-index: 20;
+    border-top: 1px solid var(--green-army);
+    padding-top: 10px;
     }
     .panel-bottom .status-bar { order: -1; width: 100%; }
     .panel-bottom #controles { flex-direction: row; flex: 1; min-width: 0; }
