@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Central de Operações — Defesa Nacional</title>
 
-    <!-- Tailwind Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,85 +13,186 @@
                     fontFamily: {
                         mono: ['"Share Tech Mono"', 'Courier New', 'monospace'],
                         sans: ['Inter', 'Segoe UI', 'sans-serif'],
-                    },
+                    }
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Tactical grid overlay -->
     <div class="tactical-grid" aria-hidden="true"></div>
 
-    <!-- ===== PAINEL DE CONTROLE (esquerdo) ===== -->
+    <!-- ═══════════════════════════════════════════
+         PAINEL DE CONTROLE (esquerdo)
+    ════════════════════════════════════════════ -->
     <aside class="panel control-panel">
 
-        <!-- Cabeçalho com emblema -->
-        <div class="panel-section panel-header">
+        <!-- Header fixo -->
+        <div class="panel-header">
             <div class="emblem-ring" aria-hidden="true">🛡️</div>
             <div class="flex flex-col gap-0.5">
                 <span class="label-xs text-khaki">REPÚBLICA FEDERATIVA</span>
-                <span class="label-sm text-bone font-bold tracking-widest">DO BRASIL</span>
+                <span class="label-sm text-bone tracking-widest">DO BRASIL</span>
             </div>
         </div>
 
-        <!-- Avatar com mira tática -->
-        <figure class="avatar-section">
-            <div class="avatar-frame">
-                <!-- Cantos de mira -->
-                <div class="reticle reticle-tl" aria-hidden="true"></div>
-                <div class="reticle reticle-br" aria-hidden="true"></div>
-                <img
-                    src="https://mascotetop.com.br/static/media/mascote-3d-robo-sam-show-automall-bh-pose-1.93cf7f7eef80f84e105c.jpg"
-                    alt="Assistente IA"
-                    class="avatar-img"
-                >
+        <!-- Área scrollável: Avatar + Filtros -->
+        <div class="panel-scroll-area">
+
+            <!-- Avatar com mira tática -->
+            <figure class="avatar-section">
+                <div class="avatar-frame" id="avatar-frame">
+                    <div class="reticle reticle-tl" aria-hidden="true"></div>
+                    <div class="reticle reticle-br" aria-hidden="true"></div>
+                    <img src="https://mascotetop.com.br/static/media/mascote-3d-robo-sam-show-automall-bh-pose-1.93cf7f7eef80f84e105c.jpg"
+                         alt="Assistente IA" class="avatar-img" id="avatar-img">
+                </div>
+                <figcaption class="flex flex-col items-center gap-1 mt-2">
+                    <span class="label-xs text-brass" id="avatar-forca-label">▸ BOPE — ATIVO</span>
+                </figcaption>
+            </figure>
+
+            <!-- ╔══════════════════════════════╗
+                 ║  PARÂMETROS DE MISSÃO        ║
+                 ╚══════════════════════════════╝ -->
+            <section class="mission-params" aria-label="Filtros de contexto">
+
+                <div class="params-header">
+                    <span class="params-icon" aria-hidden="true">⌖</span>
+                    <span class="label-xs text-brass">PARÂMETROS DE MISSÃO</span>
+                    <button class="params-toggle" id="paramsToggle"
+                            aria-expanded="true" aria-controls="paramsBody"
+                            aria-label="Alternar filtros">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="params-body" id="paramsBody">
+
+                    <!-- 1 · Força Operacional -->
+                    <div class="filter-group">
+                        <span class="filter-label">① FORÇA OPERACIONAL</span>
+                        <div class="filter-grid fg-4">
+                            <button class="filter-btn glow-green active"
+                                    data-group="forca" data-value="BOPE">BOPE</button>
+                            <button class="filter-btn glow-green"
+                                    data-group="forca" data-value="PM">PM</button>
+                            <button class="filter-btn glow-green"
+                                    data-group="forca" data-value="PC">PC</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="forca" data-value="PF">PF</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="forca" data-value="PRF">PRF</button>
+                            <button class="filter-btn glow-olive"
+                                    data-group="forca" data-value="Exército">EXÉ</button>
+                            <button class="filter-btn glow-blue"
+                                    data-group="forca" data-value="Aeronáutica">FAB</button>
+                            <button class="filter-btn glow-blue"
+                                    data-group="forca" data-value="Marinha">MAR</button>
+                        </div>
+                    </div>
+
+                    <!-- 2 · Vetor de Consulta -->
+                    <div class="filter-group">
+                        <span class="filter-label">② VETOR DE CONSULTA</span>
+                        <div class="filter-grid fg-3">
+                            <button class="filter-btn glow-brass active"
+                                    data-group="vetor" data-value="Estratégias Táticas">TÁTICAS</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="vetor" data-value="Concurso Público">CONCURSO</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="vetor" data-value="Requisitos Mínimos">REQUIS.</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="vetor" data-value="Operações">OPS</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="vetor" data-value="Cargos">CARGOS</button>
+                            <button class="filter-btn glow-brass"
+                                    data-group="vetor" data-value="Rotina">ROTINA</button>
+                        </div>
+                    </div>
+
+                    <!-- 3 · Modulador de Conduta -->
+                    <div class="filter-group">
+                        <span class="filter-label">③ CONDUTA DO ASSISTENTE</span>
+                        <div class="filter-grid fg-2">
+                            <button class="filter-btn glow-bone active"
+                                    data-group="conduta" data-value="Formal">FORMAL</button>
+                            <button class="filter-btn glow-bone"
+                                    data-group="conduta"
+                                    data-value="Informal (Policial Raiz)">RAIZ 🪖</button>
+                        </div>
+                    </div>
+
+                    <!-- 4 · Extensão da Resposta -->
+                    <div class="filter-group">
+                        <span class="filter-label">④ EXTENSÃO DA RESPOSTA</span>
+                        <div class="filter-grid fg-3">
+                            <button class="filter-btn glow-signal active"
+                                    data-group="extensao" data-value="Resumo Direto">BREVE</button>
+                            <button class="filter-btn glow-signal"
+                                    data-group="extensao"
+                                    data-value="Padrão Operacional">PADRÃO</button>
+                            <button class="filter-btn glow-signal"
+                                    data-group="extensao"
+                                    data-value="Relatório Completo">COMPLETO</button>
+                        </div>
+                    </div>
+
+                </div><!-- /params-body -->
+            </section><!-- /mission-params -->
+
+        </div><!-- /panel-scroll-area -->
+
+        <!-- Rodapé fixo: Status + Botões -->
+        <div class="panel-bottom">
+
+            <div class="status-bar" role="status" aria-live="polite">
+                <span class="status-dot" id="status-dot"></span>
+                <span class="label-sm" id="status-label">AGUARDANDO INÍCIO</span>
             </div>
-            <figcaption class="flex flex-col items-center gap-1 mt-3">
-                <span class="label-xs text-brass">▸ ASSISTENTE IA — ATIVO</span>
-                <span class="label-xs text-khaki">SEGURANÇA PÚBLICA / DEF. NACIONAL</span>
-            </figcaption>
-        </figure>
 
-        <!-- Barra de status -->
-        <div class="status-bar" role="status" aria-live="polite">
-            <span class="status-dot" id="status-dot"></span>
-            <span class="label-sm" id="status-label">AGUARDANDO INÍCIO</span>
+            <div class="flex flex-col gap-2" id="controles">
+                <button id="iniciarBtn" class="ctrl-btn btn-start">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 3l14 9-14 9V3z"/>
+                    </svg>
+                    Iniciar Operação
+                </button>
+                <button id="limparBtn" class="ctrl-btn btn-clear">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                    Limpar Registros
+                </button>
+                <button id="encerrarBtn" class="ctrl-btn btn-end">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    </svg>
+                    Encerrar Missão
+                </button>
+            </div>
+
+            <div class="panel-footer">
+                <span class="label-xs text-khaki tracking-widest">[ USO RESTRITO — SISTEMA OFICIAL ]</span>
+            </div>
         </div>
 
-        <!-- Botões de controle -->
-        <div class="flex flex-col gap-2.5" id="controles">
-            <button id="iniciarBtn" class="ctrl-btn btn-start">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
-                Iniciar Operação
-            </button>
-            <button id="limparBtn" class="ctrl-btn btn-clear">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                Limpar Registros
-            </button>
-            <button id="encerrarBtn" class="ctrl-btn btn-end">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                Encerrar Missão
-            </button>
-        </div>
+    </aside><!-- /control-panel -->
 
-        <!-- Rodapé classificação -->
-        <div class="panel-section panel-footer">
-            <span class="label-xs text-khaki tracking-widest">[ USO RESTRITO — SISTEMA OFICIAL ]</span>
-        </div>
-    </aside>
-
-    <!-- ===== PAINEL DE CHAT (direito) ===== -->
+    <!-- ═══════════════════════════════════════════
+         PAINEL DE CHAT (direito)
+    ════════════════════════════════════════════ -->
     <main class="panel chat-panel">
 
-        <!-- Cabeçalho do chat -->
         <header class="chat-header">
             <div class="flex items-center gap-3">
                 <div class="header-shield" aria-hidden="true">
@@ -100,45 +200,48 @@
                         <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
                 </div>
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-0.5">
                     <h1 class="chat-title">CENTRAL DE OPERAÇÕES</h1>
-                    <div class="flex items-center gap-2" id="connection-status">
+                    <div class="flex items-center gap-2">
                         <span class="conn-dot" id="conn-dot"></span>
                         <span class="label-xs" id="conn-text">DESCONECTADO</span>
                     </div>
                 </div>
             </div>
-            <div class="header-badge">
-                <span class="label-xs text-brass">CANAL SEGURO</span>
+
+            <!-- Contexto ativo (atualizado pelo JS) -->
+            <div class="active-context" id="active-context" aria-live="polite">
+                <span class="label-xs" id="ctx-forca" style="color: var(--green-light)">BOPE</span>
+                <span class="ctx-sep">·</span>
+                <span class="label-xs" id="ctx-vetor" style="color: var(--brass)">TÁTICAS</span>
+                <span class="ctx-sep">·</span>
+                <span class="label-xs" id="ctx-extensao" style="color: var(--signal-on)">BREVE</span>
             </div>
         </header>
 
         <!-- Área de mensagens -->
         <div id="chat-box" class="chat-box" role="log" aria-live="polite" aria-label="Histórico de mensagens"></div>
 
-        <!-- Área de input -->
+        <!-- Input -->
         <footer class="chat-footer">
             <div class="input-row">
                 <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
-                <input
-                    type="text"
-                    id="message-input"
-                    class="msg-input"
-                    placeholder="Digite sua consulta..."
-                    autocomplete="off"
-                    aria-label="Campo de mensagem"
-                >
+                <input type="text" id="message-input" class="msg-input"
+                       placeholder="Digite sua consulta operacional..."
+                       autocomplete="off" aria-label="Campo de mensagem">
                 <button id="send-button" class="send-btn" aria-label="Enviar mensagem">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"/>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                     </svg>
                 </button>
             </div>
         </footer>
-    </main>
+
+    </main><!-- /chat-panel -->
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
