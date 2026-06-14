@@ -1,48 +1,48 @@
 /* ============================================================
-   SISTEMA DE DEFESA NACIONAL — script.js  v3.0
-   Painel Tático Dinâmico | Flask-SocketIO ↔ Gemini
+   SISTEMA DE DEFESA NACIONAL — script.js  v4.0
+   Painel Tático 3 Colunas | Flask-SocketIO ↔ Gemini
    ============================================================ */
 
 const URL_BACKEND = 'https://chatbot-steam-backend.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    let socket = null;
-    let typingEl = null;    // elemento de "digitando..."
+    let socket    = null;
+    let typingEl  = null;   // elemento "digitando..."
     let isWaiting = false;  // aguardando resposta do bot
 
-    // ── Referências ao DOM ──────────────────────────────────
-    const chatBox       = document.getElementById('chat-box');
-    const messageInput  = document.getElementById('message-input');
-    const sendButton    = document.getElementById('send-button');
-    const iniciarBtn    = document.getElementById('iniciarBtn');
-    const encerrarBtn   = document.getElementById('encerrarBtn');
-    const limparBtn     = document.getElementById('limparBtn');
+    // ── Referências ao DOM ───────────────────────────────────
+    const chatBox        = document.getElementById('chat-box');
+    const messageInput   = document.getElementById('message-input');
+    const sendButton     = document.getElementById('send-button');
+    const iniciarBtn     = document.getElementById('iniciarBtn');
+    const encerrarBtn    = document.getElementById('encerrarBtn');
+    const limparBtn      = document.getElementById('limparBtn');
 
-    const statusDot     = document.getElementById('status-dot');
-    const statusLabel   = document.getElementById('status-label');
-    const connDot       = document.getElementById('conn-dot');
-    const connText      = document.getElementById('conn-text');
+    const statusDot      = document.getElementById('status-dot');
+    const statusLabel    = document.getElementById('status-label');
+    const connDot        = document.getElementById('conn-dot');
+    const connText       = document.getElementById('conn-text');
 
-    const ctxForca      = document.getElementById('ctx-forca');
-    const ctxVetor      = document.getElementById('ctx-vetor');
-    const ctxExtensao   = document.getElementById('ctx-extensao');
-    const avatarFrame   = document.getElementById('avatar-frame');
+    const ctxForca       = document.getElementById('ctx-forca');
+    const ctxVetor       = document.getElementById('ctx-vetor');
+    const ctxExtensao    = document.getElementById('ctx-extensao');
+    const avatarFrame    = document.getElementById('avatar-frame');
     const avatarForcaLabel = document.getElementById('avatar-forca-label');
 
     let userSessionId = null;
 
     // ============================================================
-    // ESTADO DOS FILTROS (padrões iniciais = botões marcados active no HTML)
+    // ESTADO DOS FILTROS (padrões = botões marcados .active no HTML)
     // ============================================================
     const filters = {
-        forca:    'BOPE',
-        vetor:    'Estratégias Táticas',
-        conduta:  'Formal',
-        extensao: 'Resumo Direto',
+        forca:   'BOPE',
+        vetor:   'Estratégias Táticas',
+        conduta: 'Formal',
+        extensao:'Resumo Direto',
     };
 
-    // Mapeamento Força → classe CSS do tema
+    // Mapeamento Força → classe CSS de tema
     const FORCE_THEME = {
         'BOPE':        'force-police',
         'PM':          'force-police',
@@ -54,26 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
         'Marinha':     'force-naval',
     };
 
-    // Cor do texto para cada força no header
+    // Cor do rótulo de força no header do chat
     const FORCE_COLOR = {
-        'BOPE':        'var(--green-light)',
-        'PM':          'var(--green-light)',
-        'PC':          'var(--green-light)',
-        'PF':          'var(--brass-bright)',
-        'PRF':         'var(--brass-bright)',
+        'BOPE':        '#6aad4a',
+        'PM':          '#6aad4a',
+        'PC':          '#6aad4a',
+        'PF':          '#e8c244',
+        'PRF':         '#e8c244',
         'Exército':    '#a0cc78',
         'Aeronáutica': '#82b8f8',
         'Marinha':     '#82b8f8',
     };
 
-    // Legenda curta para Extensão no header
+    // Legenda curta para o badge de Extensão
     const EXTENSAO_SHORT = {
-        'Resumo Direto':       'BREVE',
-        'Padrão Operacional':  'PADRÃO',
-        'Relatório Completo':  'COMPLETO',
+        'Resumo Direto':      'BREVE',
+        'Padrão Operacional': 'PADRÃO',
+        'Relatório Completo': 'COMPLETO',
     };
 
-    // Legenda curta para Vetor no header
+    // Legenda curta para o badge de Vetor
     const VETOR_SHORT = {
         'Estratégias Táticas': 'TÁTICAS',
         'Concurso Público':    'CONCURSO',
@@ -84,13 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ============================================================
-    // STATUS MANAGEMENT
+    // STATUS — usa classList para NÃO destruir classes Tailwind
     // ============================================================
     const STATUS_CFG = {
-        idle:        { label: 'AGUARDANDO INÍCIO', conn: 'DESCONECTADO', dot: '' },
-        connecting:  { label: 'ESTABELECENDO LINK...', conn: 'CONECTANDO...', dot: '' },
-        connected:   { label: 'OPERAÇÃO ATIVA',    conn: 'EM OPERAÇÃO',  dot: 'on' },
-        disconnected:{ label: 'SINAL PERDIDO',     conn: 'DESCONECTADO', dot: 'off' },
+        idle:        { label: 'AGUARDANDO',   conn: 'DESCONECTADO', dot: '' },
+        connecting:  { label: 'CONECTANDO...', conn: 'CONECTANDO...', dot: '' },
+        connected:   { label: 'OP. ATIVA',    conn: 'EM OPERAÇÃO',  dot: 'on' },
+        disconnected:{ label: 'SINAL PERDIDO', conn: 'DESCONECTADO', dot: 'off' },
     };
 
     function setStatus(state) {
@@ -98,8 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
         statusLabel.textContent = cfg.label;
         connText.textContent    = cfg.conn;
 
-        statusDot.className = 'status-dot' + (cfg.dot ? ` ${cfg.dot}` : '');
-        connDot.className   = 'conn-dot'   + (cfg.dot ? ` ${cfg.dot}` : '');
+        // Remove estados anteriores sem tocar nas classes Tailwind
+        statusDot.classList.remove('dot-on', 'dot-off');
+        connDot.classList.remove('cdot-on', 'cdot-off');
+
+        if (cfg.dot === 'on') {
+            statusDot.classList.add('dot-on');
+            connDot.classList.add('cdot-on');
+        } else if (cfg.dot === 'off') {
+            statusDot.classList.add('dot-off');
+            connDot.classList.add('cdot-off');
+        }
     }
 
     // ============================================================
@@ -111,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sendButton.disabled   = !on;
     }
 
-    // Bloqueia input enquanto aguarda resposta
     function setWaiting(waiting) {
         isWaiting = waiting;
         if (socket?.connected) setChatEnabled(!waiting);
@@ -126,21 +134,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const group = btn.dataset.group;
                 const value = btn.dataset.value;
 
-                // Atualiza estado
                 filters[group] = value;
 
-                // Toggle classe active no grupo
+                // Atualiza classe .active dentro do grupo
                 document.querySelectorAll(`.filter-btn[data-group="${group}"]`)
                     .forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                // Atualiza HUD e avatar
                 syncContextDisplay();
                 if (group === 'forca') syncAvatarTheme();
             });
         });
 
-        // Toggle colapsável (mobile)
+        // Toggle colapsável (visível apenas no mobile, via CSS)
         const toggle = document.getElementById('paramsToggle');
         const body   = document.getElementById('paramsBody');
         if (toggle && body) {
@@ -149,30 +155,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggle.setAttribute('aria-expanded', String(!expanded));
                 body.classList.toggle('params-collapsed');
                 const icon = toggle.querySelector('svg');
-                if (icon) icon.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+                if (icon) {
+                    icon.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+                }
             });
         }
     }
 
     function syncContextDisplay() {
         if (ctxForca) {
-            ctxForca.textContent = filters.forca;
-            ctxForca.style.color = FORCE_COLOR[filters.forca] ?? 'var(--green-light)';
+            ctxForca.textContent  = filters.forca;
+            ctxForca.style.color  = FORCE_COLOR[filters.forca] ?? '#6aad4a';
         }
-        if (ctxVetor) {
-            ctxVetor.textContent = VETOR_SHORT[filters.vetor] ?? filters.vetor;
-        }
-        if (ctxExtensao) {
-            ctxExtensao.textContent = EXTENSAO_SHORT[filters.extensao] ?? filters.extensao;
-        }
+        if (ctxVetor)    ctxVetor.textContent   = VETOR_SHORT[filters.vetor]       ?? filters.vetor;
+        if (ctxExtensao) ctxExtensao.textContent = EXTENSAO_SHORT[filters.extensao] ?? filters.extensao;
     }
 
     function syncAvatarTheme() {
         if (!avatarFrame) return;
 
-        // Remove temas anteriores
-        const themes = ['force-police','force-federal','force-army','force-air','force-naval'];
-        avatarFrame.classList.remove(...themes);
+        const ALL_THEMES = ['force-police','force-federal','force-army','force-air','force-naval'];
+        avatarFrame.classList.remove(...ALL_THEMES);
 
         const theme = FORCE_THEME[filters.forca];
         if (theme) avatarFrame.classList.add(theme);
@@ -210,12 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (type === 'error') el.classList.add('error-text');
 
-        // Rótulo
+        // Rótulo do remetente
         const label = document.createElement('strong');
         label.textContent = displayName;
         el.appendChild(label);
 
-        // Conteúdo
+        // Conteúdo (markdown ou texto plano)
         const content = document.createElement('span');
         if (type === 'normal') {
             content.innerHTML = marked.parse(text);
@@ -228,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // ── Indicador de "digitando..." ────────────────────────────
+    // ── Indicador "digitando..." ─────────────────────────────
     function showTyping() {
         removeTyping();
         typingEl = document.createElement('div');
@@ -243,10 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function removeTyping() {
-        if (typingEl) {
-            typingEl.remove();
-            typingEl = null;
-        }
+        if (typingEl) { typingEl.remove(); typingEl = null; }
     }
 
     // ============================================================
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             withCredentials: true,
         });
 
-        // ── Eventos ────────────────────────────────────────────
+        // ── Eventos Socket.IO ───────────────────────────────
 
         socket.on('connect', () => {
             console.log('[SOCKET] Conectado — SID:', socket.id);
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setChatEnabled(false);
         });
 
-        // Recebe session_id do app.py (evento status_conexao)
+        // Recebe session_id do backend (evento status_conexao)
         socket.on('status_conexao', (data) => {
             if (data.session_id) {
                 userSessionId = data.session_id;
@@ -289,17 +289,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Recebe resposta do bot (evento nova_mensagem do app.py)
+        // Recebe resposta do bot (evento nova_mensagem)
         socket.on('nova_mensagem', (data) => {
             removeTyping();
             setWaiting(false);
-
-            // Usa a forca retornada pelo backend para tematizar a bolha
             const fc = data.forca ? (FORCE_THEME[data.forca] ?? null) : null;
             addMessage(data.remetente, data.texto, 'normal', fc);
         });
 
-        // Recebe erros do servidor (evento erro do app.py)
+        // Recebe erros do servidor (evento erro)
         socket.on('erro', (data) => {
             removeTyping();
             setWaiting(false);
@@ -330,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================================
-    // ENVIAR MENSAGEM → app.py (evento enviar_mensagem)
+    // ENVIAR MENSAGEM → app.py  (evento enviar_mensagem)
     // Payload inclui todos os filtros selecionados
     // ============================================================
     function enviarMensagem() {
@@ -340,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (socket && socket.connected) {
             addMessage('user', texto, 'normal');
 
-            // Payload completo com filtros
             socket.emit('enviar_mensagem', {
                 mensagem: texto,
                 forca:    filters.forca,
@@ -352,12 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageInput.value = '';
             messageInput.focus();
 
-            // Bloqueia input e exibe indicador de digitação
             setWaiting(true);
             showTyping();
-
         } else {
-            addMessage('sistema', 'Sem conexão ativa. Clique em "Iniciar Operação" primeiro.', 'error');
+            addMessage('sistema', 'Sem conexão ativa. Clique em "Iniciar" primeiro.', 'error');
         }
     }
 
@@ -386,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setStatus('idle');
     addMessage(
         'sistema',
-        'Sistema aguardando inicialização. Configure os parâmetros de missão e clique em "Iniciar Operação".',
+        'Sistema aguardando inicialização. Configure os parâmetros de missão e clique em "Iniciar".',
         'status'
     );
 

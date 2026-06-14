@@ -12,8 +12,7 @@
                 extend: {
                     fontFamily: {
                         mono: ['"Share Tech Mono"', 'Courier New', 'monospace'],
-                        sans: ['Inter', 'Segoe UI', 'sans-serif'],
-                    }
+                    },
                 }
             }
         }
@@ -22,226 +21,504 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* ── CSS Variables ─────────────────────────────────── */
+        :root {
+            --brass:       #c49a0a;
+            --brass-light: #d4aa1a;
+            --brass-bright:#e8c244;
+            --bone:        #ccc8a8;
+            --bone-dim:    #a8a488;
+            --khaki:       #7a7055;
+            --khaki-dark:  #4a4030;
+            --green-light: #6aad4a;
+            --signal-on:   #4ade80;
+            --signal-off:  #f87171;
+            --b-brass:     rgba(196,154,10,0.28);
+            --b-glow:      rgba(196,154,10,0.55);
+        }
+
+        /* ── Tactical grid background ──────────────────────── */
+        .tactical-grid {
+            background-image:
+                linear-gradient(rgba(196,154,10,0.022) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,154,10,0.022) 1px, transparent 1px);
+            background-size: 38px 38px;
+        }
+
+        /* ── Panel: brass top-accent pseudo ───────────────── */
+        .panel { position: relative; }
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 4%, var(--brass) 35%,
+                var(--brass-bright) 50%,
+                var(--brass) 65%, transparent 96%);
+            opacity: 0.52;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* ── Keyframes ─────────────────────────────────────── */
+        @keyframes pulse-sig {
+            0%,100% { opacity:1; transform:scale(1); }
+            50%      { opacity:0.52; transform:scale(0.82); }
+        }
+        @keyframes msg-in {
+            from { opacity:0; transform:translateY(5px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes typing-bounce {
+            0%,80%,100% { transform:scale(0.7); opacity:0.4; }
+            40%          { transform:scale(1);   opacity:1; }
+        }
+
+        /* ── Scrollbars ────────────────────────────────────── */
+        .scrollbar-tac::-webkit-scrollbar { width: 3px; }
+        .scrollbar-tac::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-tac::-webkit-scrollbar-thumb { background: rgba(196,154,10,0.20); border-radius: 2px; }
+        .scrollbar-tac::-webkit-scrollbar-thumb:hover { background: var(--brass); }
+
+        /* ── JS-toggled dot states ─────────────────────────── */
+        .dot-on   { background: var(--signal-on)  !important; box-shadow: 0 0 8px var(--signal-on), 0 0 20px rgba(74,222,128,0.28); animation: pulse-sig 2.4s ease-in-out infinite; }
+        .dot-off  { background: var(--signal-off) !important; box-shadow: 0 0 8px var(--signal-off); }
+        .cdot-on  { background: var(--signal-on)  !important; box-shadow: 0 0 6px var(--signal-on);  animation: pulse-sig 2.4s ease-in-out infinite; }
+        .cdot-off { background: var(--signal-off) !important; box-shadow: 0 0 6px var(--signal-off); }
+
+        /* ── Chat title gradient ───────────────────────────── */
+        .chat-title {
+            background: linear-gradient(90deg, var(--bone), var(--brass-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Avatar: vignette + force themes ──────────────── */
+        .avatar-frame::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 52%, rgba(6,10,4,0.62));
+            z-index: 1;
+            pointer-events: none;
+        }
+        .force-police  { border-color:rgba(74,124,53,0.65) !important;  box-shadow:0 0 16px rgba(74,124,53,0.18)  !important; }
+        .force-federal { border-color:rgba(196,154,10,0.65)!important;   box-shadow:0 0 16px rgba(196,154,10,0.18) !important; }
+        .force-army    { border-color:rgba(60,100,35,0.65) !important;   box-shadow:0 0 16px rgba(60,100,35,0.18)  !important; }
+        .force-air,
+        .force-naval   { border-color:rgba(30,80,170,0.65) !important;   box-shadow:0 0 16px rgba(30,80,170,0.18)  !important; }
+
+        /* ── Filter button glows ───────────────────────────── */
+        .filter-btn { user-select:none; transition: all 0.18s ease; }
+        .filter-btn:not(.active):hover { background:rgba(196,154,10,0.07); color:var(--bone-dim); border-color:rgba(196,154,10,0.18); }
+        .filter-btn.active.glow-green  { background:rgba(74,124,53,0.16);   border-color:var(--green-light); color:var(--green-light); box-shadow:0 0 8px rgba(106,173,74,0.22),inset 0 0 4px rgba(106,173,74,0.08); }
+        .filter-btn.active.glow-brass  { background:rgba(196,154,10,0.13);  border-color:var(--brass-light);  color:var(--brass-bright);box-shadow:0 0 8px rgba(196,154,10,0.22),inset 0 0 4px rgba(196,154,10,0.08); }
+        .filter-btn.active.glow-olive  { background:rgba(55,85,22,0.20);    border-color:#7aaa50; color:#a0cc78;     box-shadow:0 0 8px rgba(80,130,40,0.22), inset 0 0 4px rgba(80,130,40,0.08); }
+        .filter-btn.active.glow-blue   { background:rgba(20,45,110,0.22);   border-color:#4a88e0; color:#82b8f8;     box-shadow:0 0 8px rgba(30,80,200,0.22), inset 0 0 4px rgba(30,80,200,0.08); }
+        .filter-btn.active.glow-bone   { background:rgba(204,200,168,0.09); border-color:var(--bone);color:var(--bone);box-shadow:0 0 8px rgba(204,200,168,0.10); }
+        .filter-btn.active.glow-signal { background:rgba(74,222,128,0.09);  border-color:var(--signal-on);color:var(--signal-on);box-shadow:0 0 8px rgba(74,222,128,0.18); }
+
+        /* ── Params collapse (mobile accordion) ────────────── */
+        .params-body { max-height:1200px; transition:max-height 0.32s ease, padding 0.32s ease; }
+        .params-body.params-collapsed { max-height:0; padding-top:0!important; padding-bottom:0!important; overflow:hidden; }
+
+        /* ── Input / send ──────────────────────────────────── */
+        .input-row:focus-within { border-color:var(--b-glow)!important; box-shadow:0 0 14px rgba(196,154,10,0.09); }
+        .send-btn { background:linear-gradient(135deg,#1e3a16,#2d5a1f); transition:all 0.2s ease; }
+        .send-btn:hover:not(:disabled) { background:linear-gradient(135deg,#2d5a1f,#4a7c35); color:#d4f0b0; }
+
+        /* ── Chat messages (dynamically created by JS) ─────── */
+        .message { line-height:1.65; padding:10px 14px; border-radius:3px; max-width:88%; word-wrap:break-word; font-size:0.90rem; animation:msg-in 0.22s ease; }
+        .message > strong { display:block; font-family:'Share Tech Mono',monospace; font-size:0.63rem; letter-spacing:2px; text-transform:uppercase; opacity:0.56; margin-bottom:6px; font-weight:normal; }
+        .user-message { background:linear-gradient(135deg,rgba(15,30,56,0.92),rgba(24,48,88,0.88)); color:#c4d8ee; margin-left:auto; border:1px solid rgba(24,48,88,0.82); border-top-color:rgba(60,100,170,0.48); }
+        .user-message > strong { color:#6a9ad4; }
+        .bot-message { background:rgba(12,20,10,0.90); color:var(--bone); margin-right:auto; border:1px solid rgba(42,82,28,0.48); border-top-color:rgba(70,118,50,0.48); }
+        .bot-message > strong { color:#72a862; }
+        .bot-message span { text-shadow:0 0 14px rgba(70,160,70,0.09); }
+        .status-message { background:rgba(196,154,10,0.045); border:1px solid var(--b-brass); color:var(--khaki); font-family:'Share Tech Mono',monospace; font-size:0.72rem; letter-spacing:0.4px; text-align:center; margin:0 auto; width:100%; border-radius:2px; padding:5px 12px; }
+        .status-message > strong { display:inline; margin-right:5px; color:var(--brass); font-size:inherit; opacity:1; letter-spacing:normal; }
+        .error-text { background:rgba(100,16,16,0.10)!important; border-color:rgba(248,113,113,0.26)!important; color:#f87171!important; }
+        .error-text > strong { color:var(--signal-off)!important; }
+
+        /* ── Bot message force themes ──────────────────────── */
+        .bot-message.force-police  { border-color:rgba(70,118,50,0.58); border-top-color:rgba(100,170,70,0.42); }
+        .bot-message.force-federal { border-color:rgba(196,154,10,0.50); border-top-color:rgba(216,174,30,0.40); background:rgba(16,12,5,0.90); }
+        .bot-message.force-army    { border-color:rgba(38,65,22,0.68); border-top-color:rgba(60,100,38,0.48); }
+        .bot-message.force-naval,
+        .bot-message.force-air     { border-color:rgba(18,45,96,0.70); border-top-color:rgba(36,80,160,0.44); background:rgba(6,10,18,0.90); }
+
+        /* ── Typing indicator ──────────────────────────────── */
+        .typing-indicator { display:flex; gap:4px; align-items:center; padding:10px 14px; margin-right:auto; border:1px solid rgba(42,82,28,0.35); border-radius:3px; background:rgba(12,20,10,0.80); animation:msg-in 0.22s ease; }
+        .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--green-light); animation:typing-bounce 1.2s ease-in-out infinite; }
+        .typing-dot:nth-child(2) { animation-delay:0.2s; }
+        .typing-dot:nth-child(3) { animation-delay:0.4s; }
+
+        /* ── Markdown inside messages ──────────────────────── */
+        .message span strong { display:inline; font-family:inherit; font-size:1em; letter-spacing:normal; text-transform:none; opacity:1; color:var(--brass-light); font-weight:600; }
+        .user-message span strong { color:#88b8e8; }
+        .message span p { margin-bottom:8px; }
+        .message span p:last-child { margin-bottom:0; }
+        .message span ul,.message span ol { margin-left:18px; margin-bottom:8px; }
+        .message span li { margin-bottom:3px; }
+        .message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
+        .message span code { background:rgba(196,154,10,0.09); color:var(--brass-light); padding:2px 5px; border-radius:2px; font-family:'Share Tech Mono',monospace; font-size:0.86em; }
+        .message span pre code { background:transparent; color:#96cc84; padding:0; }
+        .message span h1,.message span h2,.message span h3 { font-family:'Share Tech Mono',monospace; color:var(--brass-light); letter-spacing:1px; margin:10px 0 6px; }
+        .message span blockquote { border-left:3px solid var(--brass); padding-left:12px; color:var(--bone-dim); margin:8px 0; }
+        .message span table { border-collapse:collapse; width:100%; margin:8px 0; font-size:0.84em; }
+        .message span th,.message span td { border:1px solid var(--b-brass); padding:5px 8px; text-align:left; }
+        .message span th { background:rgba(196,154,10,0.07); color:var(--brass-light); font-family:'Share Tech Mono',monospace; font-size:0.77em; letter-spacing:0.4px; }
+        .message span hr { border:none; border-top:1px solid var(--b-brass); margin:10px 0; }
+
+        /* ── Responsive: mobile params toggle visibility ───── */
+        @media (max-width:1023px)  { .mobile-toggle  { display:flex!important; } }
+        @media (min-width:1024px)  {
+            .mobile-toggle { display:none!important; }
+            /* Always expand filters on desktop regardless of JS state */
+            #paramsBody.params-collapsed { max-height:1200px!important; padding:12px!important; overflow:visible!important; }
+        }
+
+        /* ── Reduced motion ────────────────────────────────── */
+        @media (prefers-reduced-motion:reduce) {
+            .dot-on,.cdot-on { animation:none!important; }
+            .message,.typing-indicator,.typing-dot { animation:none!important; }
+            .params-body { transition:none!important; }
+        }
+    </style>
 </head>
-<body>
-    <div class="tactical-grid" aria-hidden="true"></div>
 
-    <!-- ═══════════════════════════════════════════
-         PAINEL DE CONTROLE (esquerdo)
-    ════════════════════════════════════════════ -->
-    <aside class="panel control-panel">
+<body class="bg-[#080c06] text-[#ccc8a8] min-h-screen flex flex-col lg:flex-row items-stretch lg:items-center justify-center p-3 lg:p-4 gap-3 lg:gap-4 relative overflow-x-hidden"
+      style="font-family:'Inter','Segoe UI',sans-serif;
+             background-image:
+               radial-gradient(ellipse 65% 55% at 12% 50%, rgba(30,58,22,0.16) 0%, transparent 70%),
+               radial-gradient(ellipse 65% 55% at 88% 50%, rgba(15,30,56,0.18) 0%, transparent 70%);">
 
-        <!-- Header fixo -->
-        <div class="panel-header">
-            <div class="emblem-ring" aria-hidden="true">🛡️</div>
-            <div class="flex flex-col gap-0.5">
-                <span class="label-xs text-khaki">REPÚBLICA FEDERATIVA</span>
-                <span class="label-sm text-bone tracking-widest">DO BRASIL</span>
-            </div>
+    <!-- Tactical grid overlay -->
+    <div class="tactical-grid fixed inset-0 pointer-events-none z-0" aria-hidden="true"></div>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         LEFT PANEL — PARÂMETROS / FILTROS
+         Mobile: order-3 (bottom), Desktop: order-1 (left)
+    ═══════════════════════════════════════════════════════ -->
+    <aside class="panel order-3 lg:order-1
+                  z-10 flex flex-col
+                  bg-[rgba(10,16,8,0.93)] backdrop-blur-xl
+                  border border-[rgba(196,154,10,0.28)] rounded-sm overflow-hidden
+                  w-full lg:w-64 lg:flex-shrink-0
+                  h-auto lg:h-[90vh] lg:max-h-[720px]
+                  transition-[border-color,box-shadow] duration-300
+                  hover:border-[rgba(196,154,10,0.44)]"
+           style="box-shadow:0 12px 50px rgba(0,0,0,0.85),0 0 0 1px rgba(196,154,10,0.07);">
+
+        <!-- Panel header -->
+        <div class="flex-shrink-0 flex items-center gap-2 px-3 py-3
+                    border-b border-[rgba(196,154,10,0.28)] bg-[rgba(4,8,3,0.40)]">
+            <span class="font-mono text-[#c49a0a] text-sm flex-shrink-0" aria-hidden="true">⌖</span>
+            <span class="font-mono text-[#c49a0a] text-[0.60rem] tracking-widest uppercase">PARÂMETROS DE MISSÃO</span>
+            <!-- Toggle: hidden on desktop, shown on mobile via .mobile-toggle -->
+            <button class="mobile-toggle hidden ml-auto items-center justify-center
+                           text-[#c49a0a] cursor-pointer bg-transparent border-0
+                           p-1.5 rounded hover:bg-[rgba(196,154,10,0.12)] transition-colors"
+                    id="paramsToggle"
+                    aria-expanded="false"
+                    aria-controls="paramsBody"
+                    aria-label="Alternar filtros">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5"
+                     style="transform:rotate(180deg);transition:transform 0.25s ease;">
+                    <polyline points="18 15 12 9 6 15"/>
+                </svg>
+            </button>
         </div>
 
-        <!-- Área scrollável: Avatar + Filtros -->
-        <div class="panel-scroll-area">
+        <!-- Filters body (accordion on mobile, scrollable on desktop) -->
+        <div class="params-body params-collapsed
+                    flex-1 min-h-0 overflow-y-auto scrollbar-tac
+                    flex flex-col gap-3 p-3"
+             id="paramsBody">
 
-            <!-- Avatar com mira tática -->
-            <figure class="avatar-section">
-                <div class="avatar-frame" id="avatar-frame">
-                    <div class="reticle reticle-tl" aria-hidden="true"></div>
-                    <div class="reticle reticle-br" aria-hidden="true"></div>
-                    <img src="https://mascotetop.com.br/static/media/mascote-3d-robo-sam-show-automall-bh-pose-1.93cf7f7eef80f84e105c.jpg"
-                         alt="Assistente IA" class="avatar-img" id="avatar-img">
+            <!-- ① Força Operacional -->
+            <div class="flex flex-col gap-1.5">
+                <span class="font-mono text-[#7a7055] text-[0.58rem] tracking-widest uppercase
+                             pb-1 border-b border-[rgba(196,154,10,0.10)]">① FORÇA OPERACIONAL</span>
+                <div class="grid grid-cols-4 gap-1">
+                    <button class="filter-btn glow-green active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="BOPE">BOPE</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PM">PM</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PC">PC</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PF">PF</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PRF">PRF</button>
+                    <button class="filter-btn glow-olive        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Exército">EXÉ</button>
+                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Aeronáutica">FAB</button>
+                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Marinha">MAR</button>
                 </div>
-                <figcaption class="flex flex-col items-center gap-1 mt-2">
-                    <span class="label-xs text-brass" id="avatar-forca-label">▸ BOPE — ATIVO</span>
-                </figcaption>
-            </figure>
+            </div>
 
-            <!-- ╔══════════════════════════════╗
-                 ║  PARÂMETROS DE MISSÃO        ║
-                 ╚══════════════════════════════╝ -->
-            <section class="mission-params" aria-label="Filtros de contexto">
-
-                <div class="params-header">
-                    <span class="params-icon" aria-hidden="true">⌖</span>
-                    <span class="label-xs text-brass">PARÂMETROS DE MISSÃO</span>
-                    <button class="params-toggle" id="paramsToggle"
-                            aria-expanded="true" aria-controls="paramsBody"
-                            aria-label="Alternar filtros">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2.5">
-                            <polyline points="18 15 12 9 6 15"/>
-                        </svg>
-                    </button>
+            <!-- ② Vetor de Consulta -->
+            <div class="flex flex-col gap-1.5">
+                <span class="font-mono text-[#7a7055] text-[0.58rem] tracking-widest uppercase
+                             pb-1 border-b border-[rgba(196,154,10,0.10)]">② VETOR DE CONSULTA</span>
+                <div class="grid grid-cols-3 gap-1">
+                    <button class="filter-btn glow-brass active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Estratégias Táticas">TÁTICAS</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Concurso Público">CONCURSO</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Requisitos Mínimos">REQUIS.</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Operações">OPS</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Cargos">CARGOS</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Rotina">ROTINA</button>
                 </div>
-
-                <div class="params-body" id="paramsBody">
-
-                    <!-- 1 · Força Operacional -->
-                    <div class="filter-group">
-                        <span class="filter-label">① FORÇA OPERACIONAL</span>
-                        <div class="filter-grid fg-4">
-                            <button class="filter-btn glow-green active"
-                                    data-group="forca" data-value="BOPE">BOPE</button>
-                            <button class="filter-btn glow-green"
-                                    data-group="forca" data-value="PM">PM</button>
-                            <button class="filter-btn glow-green"
-                                    data-group="forca" data-value="PC">PC</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="forca" data-value="PF">PF</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="forca" data-value="PRF">PRF</button>
-                            <button class="filter-btn glow-olive"
-                                    data-group="forca" data-value="Exército">EXÉ</button>
-                            <button class="filter-btn glow-blue"
-                                    data-group="forca" data-value="Aeronáutica">FAB</button>
-                            <button class="filter-btn glow-blue"
-                                    data-group="forca" data-value="Marinha">MAR</button>
-                        </div>
-                    </div>
-
-                    <!-- 2 · Vetor de Consulta -->
-                    <div class="filter-group">
-                        <span class="filter-label">② VETOR DE CONSULTA</span>
-                        <div class="filter-grid fg-3">
-                            <button class="filter-btn glow-brass active"
-                                    data-group="vetor" data-value="Estratégias Táticas">TÁTICAS</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="vetor" data-value="Concurso Público">CONCURSO</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="vetor" data-value="Requisitos Mínimos">REQUIS.</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="vetor" data-value="Operações">OPS</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="vetor" data-value="Cargos">CARGOS</button>
-                            <button class="filter-btn glow-brass"
-                                    data-group="vetor" data-value="Rotina">ROTINA</button>
-                        </div>
-                    </div>
-
-                    <!-- 3 · Modulador de Conduta -->
-                    <div class="filter-group">
-                        <span class="filter-label">③ CONDUTA DO ASSISTENTE</span>
-                        <div class="filter-grid fg-2">
-                            <button class="filter-btn glow-bone active"
-                                    data-group="conduta" data-value="Formal">FORMAL</button>
-                            <button class="filter-btn glow-bone"
-                                    data-group="conduta"
-                                    data-value="Informal (Policial Raiz)">RAIZ 🪖</button>
-                        </div>
-                    </div>
-
-                    <!-- 4 · Extensão da Resposta -->
-                    <div class="filter-group">
-                        <span class="filter-label">④ EXTENSÃO DA RESPOSTA</span>
-                        <div class="filter-grid fg-3">
-                            <button class="filter-btn glow-signal active"
-                                    data-group="extensao" data-value="Resumo Direto">BREVE</button>
-                            <button class="filter-btn glow-signal"
-                                    data-group="extensao"
-                                    data-value="Padrão Operacional">PADRÃO</button>
-                            <button class="filter-btn glow-signal"
-                                    data-group="extensao"
-                                    data-value="Relatório Completo">COMPLETO</button>
-                        </div>
-                    </div>
-
-                </div><!-- /params-body -->
-            </section><!-- /mission-params -->
-
-        </div><!-- /panel-scroll-area -->
-
-        <!-- Rodapé fixo: Status + Botões -->
-        <div class="panel-bottom">
-
-            <div class="status-bar" role="status" aria-live="polite">
-                <span class="status-dot" id="status-dot"></span>
-                <span class="label-sm" id="status-label">AGUARDANDO INÍCIO</span>
             </div>
 
-            <div class="flex flex-col gap-2" id="controles">
-                <button id="iniciarBtn" class="ctrl-btn btn-start">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 3l14 9-14 9V3z"/>
-                    </svg>
-                    Iniciar Operação
-                </button>
-                <button id="limparBtn" class="ctrl-btn btn-clear">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                    </svg>
-                    Limpar Registros
-                </button>
-                <button id="encerrarBtn" class="ctrl-btn btn-end">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    </svg>
-                    Encerrar Missão
-                </button>
+            <!-- ③ Conduta do Assistente -->
+            <div class="flex flex-col gap-1.5">
+                <span class="font-mono text-[#7a7055] text-[0.58rem] tracking-widest uppercase
+                             pb-1 border-b border-[rgba(196,154,10,0.10)]">③ CONDUTA DO ASSISTENTE</span>
+                <div class="grid grid-cols-2 gap-1">
+                    <button class="filter-btn glow-bone active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="conduta" data-value="Formal">FORMAL</button>
+                    <button class="filter-btn glow-bone        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="conduta" data-value="Informal (Policial Raiz)">RAIZ 🪖</button>
+                </div>
             </div>
 
-            <div class="panel-footer">
-                <span class="label-xs text-khaki tracking-widest">[ USO RESTRITO — SISTEMA OFICIAL ]</span>
+            <!-- ④ Extensão da Resposta -->
+            <div class="flex flex-col gap-1.5">
+                <span class="font-mono text-[#7a7055] text-[0.58rem] tracking-widest uppercase
+                             pb-1 border-b border-[rgba(196,154,10,0.10)]">④ EXTENSÃO DA RESPOSTA</span>
+                <div class="grid grid-cols-3 gap-1">
+                    <button class="filter-btn glow-signal active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="extensao" data-value="Resumo Direto">BREVE</button>
+                    <button class="filter-btn glow-signal        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="extensao" data-value="Padrão Operacional">PADRÃO</button>
+                    <button class="filter-btn glow-signal        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="extensao" data-value="Relatório Completo">COMPLETO</button>
+                </div>
             </div>
-        </div>
 
-    </aside><!-- /control-panel -->
+        </div><!-- /paramsBody -->
+    </aside>
 
-    <!-- ═══════════════════════════════════════════
-         PAINEL DE CHAT (direito)
-    ════════════════════════════════════════════ -->
-    <main class="panel chat-panel">
 
-        <header class="chat-header">
+    <!-- ══════════════════════════════════════════════════════
+         MIDDLE PANEL — CHAT
+         Mobile: order-1 (top), Desktop: order-2 (center)
+    ═══════════════════════════════════════════════════════ -->
+    <main class="panel order-1 lg:order-2
+                 z-10 flex flex-col flex-1 min-w-0
+                 bg-[rgba(10,16,8,0.93)] backdrop-blur-xl
+                 border border-[rgba(196,154,10,0.28)] rounded-sm overflow-hidden
+                 h-[65vh] lg:h-[90vh] lg:max-h-[720px]
+                 transition-[border-color,box-shadow] duration-300
+                 hover:border-[rgba(196,154,10,0.44)]"
+          style="box-shadow:0 12px 50px rgba(0,0,0,0.85),0 0 0 1px rgba(196,154,10,0.07);">
+
+        <!-- Chat header -->
+        <header class="flex-shrink-0 flex items-center justify-between flex-wrap gap-2
+                       px-4 py-3 bg-[rgba(5,9,4,0.62)] border-b border-[rgba(196,154,10,0.28)]">
+
             <div class="flex items-center gap-3">
-                <div class="header-shield" aria-hidden="true">
+                <!-- Shield icon -->
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center
+                            border border-[rgba(196,154,10,0.28)] rounded-sm
+                            text-[#d4aa1a] bg-[rgba(196,154,10,0.055)]">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5">
                         <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
                 </div>
                 <div class="flex flex-col gap-0.5">
-                    <h1 class="chat-title">CENTRAL DE OPERAÇÕES</h1>
+                    <h1 class="chat-title font-mono text-[0.80rem] tracking-[3px] font-normal">CENTRAL DE OPERAÇÕES</h1>
                     <div class="flex items-center gap-2">
-                        <span class="conn-dot" id="conn-dot"></span>
-                        <span class="label-xs" id="conn-text">DESCONECTADO</span>
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#4a4030] transition-all flex-shrink-0"
+                              id="conn-dot"></span>
+                        <span class="font-mono text-[0.60rem] tracking-widest uppercase text-[#7a7055]"
+                              id="conn-text">DESCONECTADO</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Contexto ativo (atualizado pelo JS) -->
-            <div class="active-context" id="active-context" aria-live="polite">
-                <span class="label-xs" id="ctx-forca" style="color: var(--green-light)">BOPE</span>
-                <span class="ctx-sep">·</span>
-                <span class="label-xs" id="ctx-vetor" style="color: var(--brass)">TÁTICAS</span>
-                <span class="ctx-sep">·</span>
-                <span class="label-xs" id="ctx-extensao" style="color: var(--signal-on)">BREVE</span>
+            <!-- Active context badge -->
+            <div class="flex items-center gap-1.5 px-2.5 py-1.5
+                        bg-[rgba(0,0,0,0.32)] border border-[rgba(196,154,10,0.28)] rounded-sm flex-shrink-0"
+                 id="active-context" aria-live="polite">
+                <span class="font-mono text-[0.60rem] tracking-widest uppercase"
+                      id="ctx-forca" style="color:#6aad4a">BOPE</span>
+                <span class="font-mono text-[0.54rem] text-[#4a4030]">·</span>
+                <span class="font-mono text-[0.60rem] tracking-widest uppercase text-[#c49a0a]"
+                      id="ctx-vetor">TÁTICAS</span>
+                <span class="font-mono text-[0.54rem] text-[#4a4030]">·</span>
+                <span class="font-mono text-[0.60rem] tracking-widest uppercase text-[#4ade80]"
+                      id="ctx-extensao">BREVE</span>
             </div>
         </header>
 
-        <!-- Área de mensagens -->
-        <div id="chat-box" class="chat-box" role="log" aria-live="polite" aria-label="Histórico de mensagens"></div>
+        <!-- Message area -->
+        <div id="chat-box"
+             class="flex-1 min-h-0 p-4 overflow-y-auto scrollbar-tac
+                    flex flex-col gap-2.5 bg-[rgba(5,9,4,0.55)]"
+             role="log" aria-live="polite" aria-label="Histórico de mensagens"></div>
 
-        <!-- Input -->
-        <footer class="chat-footer">
-            <div class="input-row">
-                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <!-- Input footer -->
+        <footer class="flex-shrink-0 px-3 py-3
+                       bg-[rgba(4,8,3,0.82)] border-t border-[rgba(196,154,10,0.28)]">
+            <div class="input-row flex items-center
+                        bg-[rgba(255,255,255,0.022)] border border-[rgba(196,154,10,0.28)]
+                        rounded-sm overflow-hidden transition-all">
+                <svg class="w-4 h-4 ml-3 text-[#4a4030] flex-shrink-0"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
-                <input type="text" id="message-input" class="msg-input"
+                <input type="text" id="message-input"
+                       class="flex-1 px-3 py-3 bg-transparent border-0
+                              text-[#ccc8a8] text-[0.88rem] focus:outline-none
+                              disabled:opacity-30 disabled:cursor-not-allowed
+                              placeholder:text-[#4a4030] placeholder:font-mono
+                              placeholder:text-[0.75rem] placeholder:tracking-wider"
+                       style="font-family:'Inter',sans-serif;"
                        placeholder="Digite sua consulta operacional..."
                        autocomplete="off" aria-label="Campo de mensagem">
-                <button id="send-button" class="send-btn" aria-label="Enviar mensagem">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <button id="send-button"
+                        class="send-btn flex-shrink-0 px-4 min-h-[46px]
+                               border-0 border-l border-[rgba(196,154,10,0.28)]
+                               text-[#a8d88a] cursor-pointer
+                               flex items-center justify-center
+                               disabled:opacity-20 disabled:cursor-not-allowed"
+                        aria-label="Enviar mensagem">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5"
+                         stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"/>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                     </svg>
                 </button>
             </div>
         </footer>
+    </main>
 
-    </main><!-- /chat-panel -->
+
+    <!-- ══════════════════════════════════════════════════════
+         RIGHT PANEL — AVATAR + CONTROLES
+         Mobile: order-2 (below chat), Desktop: order-3 (right)
+    ═══════════════════════════════════════════════════════ -->
+    <aside class="panel order-2 lg:order-3
+                  z-10 flex flex-col
+                  bg-[rgba(10,16,8,0.93)] backdrop-blur-xl
+                  border border-[rgba(196,154,10,0.28)] rounded-sm overflow-hidden
+                  w-full lg:w-56 lg:flex-shrink-0
+                  h-auto lg:h-[90vh] lg:max-h-[720px]
+                  transition-[border-color,box-shadow] duration-300
+                  hover:border-[rgba(196,154,10,0.44)]"
+           style="box-shadow:0 12px 50px rgba(0,0,0,0.85),0 0 0 1px rgba(196,154,10,0.07);">
+
+        <!-- Header: Brasil emblem -->
+        <div class="flex-shrink-0 flex items-center gap-2.5 px-4 py-3
+                    border-b border-[rgba(196,154,10,0.28)] bg-[rgba(4,8,3,0.40)]">
+            <div class="flex-shrink-0 w-9 h-9 rounded-full border-2 border-[#c49a0a]
+                        flex items-center justify-center text-[15px]"
+                 style="background:radial-gradient(circle,rgba(196,154,10,0.10),transparent);
+                        box-shadow:0 0 12px rgba(196,154,10,0.16),inset 0 0 6px rgba(196,154,10,0.07);"
+                 aria-hidden="true">🛡️</div>
+            <div class="flex flex-col gap-0.5">
+                <span class="font-mono text-[#7a7055] text-[0.54rem] tracking-widest uppercase">REPÚBLICA FEDERATIVA</span>
+                <span class="font-mono text-[#ccc8a8] text-[0.60rem] tracking-widest uppercase">DO BRASIL</span>
+            </div>
+        </div>
+
+        <!-- Avatar section -->
+        <div class="flex-shrink-0 flex flex-col items-center px-4 pt-5 pb-3 gap-2">
+            <div class="avatar-frame relative overflow-hidden rounded-sm
+                        border border-[rgba(196,154,10,0.28)]
+                        bg-[rgba(15,30,56,0.30)]
+                        w-[90px] h-[90px] lg:w-[110px] lg:h-[110px]"
+                 id="avatar-frame"
+                 style="transition:border-color 0.4s ease,box-shadow 0.4s ease;">
+                <!-- Tactical reticle corners -->
+                <div class="absolute w-3 h-3 z-20 pointer-events-none"
+                     style="top:6px;left:6px;border-top:2px solid #c49a0a;border-left:2px solid #c49a0a;"
+                     aria-hidden="true"></div>
+                <div class="absolute w-3 h-3 z-20 pointer-events-none"
+                     style="bottom:6px;right:6px;border-bottom:2px solid #c49a0a;border-right:2px solid #c49a0a;"
+                     aria-hidden="true"></div>
+                <img src="https://mascotetop.com.br/static/media/mascote-3d-robo-sam-show-automall-bh-pose-1.93cf7f7eef80f84e105c.jpg"
+                     alt="Assistente IA"
+                     class="w-full h-full object-contain"
+                     style="filter:sepia(15%) hue-rotate(-5deg) saturate(0.82) brightness(0.86);"
+                     id="avatar-img">
+            </div>
+            <span class="font-mono text-[0.62rem] tracking-wider text-[#c49a0a]"
+                  id="avatar-forca-label">▸ BOPE — ATIVO</span>
+        </div>
+
+        <!-- Desktop spacer (pushes controls to bottom) -->
+        <div class="hidden lg:block flex-1 min-h-0"></div>
+
+        <!-- Status + Controls -->
+        <div class="flex-shrink-0 flex flex-col gap-2 px-4 py-4
+                    border-t border-[rgba(196,154,10,0.28)] bg-[rgba(4,8,3,0.50)]">
+
+            <!-- Status bar -->
+            <div class="flex items-center justify-center gap-2 px-3 py-1.5
+                        bg-[rgba(0,0,0,0.32)] border border-[rgba(196,154,10,0.28)] rounded-sm"
+                 role="status" aria-live="polite">
+                <span class="inline-block w-2 h-2 rounded-full bg-[#4a4030] transition-all flex-shrink-0"
+                      id="status-dot"></span>
+                <span class="font-mono text-[0.60rem] tracking-wider uppercase"
+                      id="status-label">AGUARDANDO</span>
+            </div>
+
+            <!-- Control buttons -->
+            <div class="flex flex-row lg:flex-col gap-1.5" id="controles">
+                <button id="iniciarBtn"
+                        class="flex flex-1 items-center justify-center gap-1.5
+                               py-2 lg:py-2.5 px-2 lg:px-3 rounded-sm cursor-pointer
+                               font-mono text-[0.62rem] lg:text-[0.68rem] tracking-widest uppercase
+                               border bg-[rgba(30,58,22,0.18)] border-[rgba(74,222,128,0.26)] text-[#4ade80]
+                               hover:bg-[rgba(30,58,22,0.38)] hover:border-[rgba(74,222,128,0.52)]
+                               transition-all duration-200">
+                    <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 3l14 9-14 9V3z"/>
+                    </svg>
+                    <span class="hidden lg:inline">Iniciar Operação</span>
+                    <span class="lg:hidden">Iniciar</span>
+                </button>
+
+                <button id="limparBtn"
+                        class="flex flex-1 items-center justify-center gap-1.5
+                               py-2 lg:py-2.5 px-2 lg:px-3 rounded-sm cursor-pointer
+                               font-mono text-[0.62rem] lg:text-[0.68rem] tracking-widest uppercase
+                               border bg-[rgba(196,154,10,0.07)] border-[rgba(196,154,10,0.28)] text-[#d4aa1a]
+                               hover:bg-[rgba(196,154,10,0.15)] hover:border-[#d4aa1a]
+                               transition-all duration-200">
+                    <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                    </svg>
+                    <span class="hidden lg:inline">Limpar Registros</span>
+                    <span class="lg:hidden">Limpar</span>
+                </button>
+
+                <button id="encerrarBtn"
+                        class="flex flex-1 items-center justify-center gap-1.5
+                               py-2 lg:py-2.5 px-2 lg:px-3 rounded-sm cursor-pointer
+                               font-mono text-[0.62rem] lg:text-[0.68rem] tracking-widest uppercase
+                               border bg-[rgba(110,18,18,0.10)] border-[rgba(248,113,113,0.24)] text-[#f87171]
+                               hover:bg-[rgba(110,18,18,0.26)] hover:border-[rgba(248,113,113,0.48)]
+                               transition-all duration-200">
+                    <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    </svg>
+                    <span class="hidden lg:inline">Encerrar Missão</span>
+                    <span class="lg:hidden">Encerrar</span>
+                </button>
+            </div>
+
+            <!-- Footer stamp -->
+            <div class="text-center pt-0.5">
+                <span class="font-mono text-[#7a7055] text-[0.50rem] tracking-widest uppercase">
+                    [ USO RESTRITO — SISTEMA OFICIAL ]
+                </span>
+            </div>
+        </div>
+
+    </aside><!-- /right panel -->
+
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
