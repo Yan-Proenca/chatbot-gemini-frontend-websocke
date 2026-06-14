@@ -183,9 +183,17 @@
             display: list-item !important;          /* Força o elemento a agir como um item de lista */
             line-height: 1.5;
         }
+        .message span li::before {
+            content: "▸ ";
+            color: var(--brass); /* Usa o tom dourado/latão do seu painel */
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
         /* ──────────────────────────────────────────────────── */
 
-.message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
+        .message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
         .message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
         .message span code { background:rgba(196,154,10,0.09); color:var(--brass-light); padding:2px 5px; border-radius:2px; font-family:'Share Tech Mono',monospace; font-size:0.86em; }
         .message span pre code { background:transparent; color:#96cc84; padding:0; }
