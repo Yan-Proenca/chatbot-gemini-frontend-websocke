@@ -164,33 +164,27 @@
         .message span p:last-child { margin-bottom:0; }
 
         /* ── CONFIGURAÇÃO DE LISTAS (ALTERADO) ──────────────── */
-        .message span ul { 
-            margin-left: 6px; 
+        .message span ul, .message span ol { 
+            margin-left: 0px; 
             margin-bottom: 8px; 
-            list-style-type: disc !important;       /* Coloca a bolinha clássica */
-            list-style-position: outside !important; /* Mantém a bolinha recuada para fora do texto */
-            padding-left: 16px !important;           /* Cria o espaçamento para o marcador */
-        }
-        .message span ol { 
-            margin-left: 6px; 
-            margin-bottom: 8px; 
-            list-style-type: decimal !important;    /* Caso o bot responda com listas numeradas (1, 2, 3) */
-            list-style-position: outside !important; 
-            padding-left: 16px !important; 
+            padding-left: 18px !important; /* Espaço para a seta não colar na borda */
+            list-style: none !important;    /* Remove as bolinhas nativas conflitantes */
         }
         .message span li { 
+            position: relative;
             margin-bottom: 6px; 
-            display: list-item !important;          /* Força o elemento a agir como um item de lista */
+            display: block !important;     /* Transforma em bloco limpo */
             line-height: 1.5;
         }
         .message span li::before {
-            content: "▸ ";
-            color: var(--brass); /* Usa o tom dourado/latão do seu painel */
+            content: "▸";
+            color: var(--brass);           /* Usa o tom dourado/latão do seu painel */
             font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+            position: absolute;
+            left: -14px;                   /* Posiciona a seta perfeitamente recuada */
+            top: 0;
         }
+
         /* ──────────────────────────────────────────────────── */
 
         .message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
