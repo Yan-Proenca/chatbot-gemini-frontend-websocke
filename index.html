@@ -162,18 +162,30 @@
         .user-message span strong { color:#88b8e8; }
         .message span p { margin-bottom:8px; }
         .message span p:last-child { margin-bottom:0; }
-        .message span ul, .message span ol { 
-            margin-left: 24px; 
+
+        /* ── CONFIGURAÇÃO DE LISTAS (ALTERADO) ──────────────── */
+        .message span ul { 
+            margin-left: 6px; 
             margin-bottom: 8px; 
-            list-style-type: disc !important; /* Garante que a bolinha apareça */
+            list-style-type: disc !important;       /* Coloca a bolinha clássica */
+            list-style-position: outside !important; /* Mantém a bolinha recuada para fora do texto */
+            padding-left: 16px !important;           /* Cria o espaçamento para o marcador */
         }
-        .message span ol {
-            list-style-type: decimal !important; /* Caso use listas ordenadas (1, 2, 3) */
+        .message span ol { 
+            margin-left: 6px; 
+            margin-bottom: 8px; 
+            list-style-type: decimal !important;    /* Caso o bot responda com listas numeradas (1, 2, 3) */
+            list-style-position: outside !important; 
+            padding-left: 16px !important; 
         }
         .message span li { 
-            margin-bottom: 4px; 
-            display: list-item !important; /* Força o alinhamento e quebra de bloco correta */
+            margin-bottom: 6px; 
+            display: list-item !important;          /* Força o elemento a agir como um item de lista */
+            line-height: 1.5;
         }
+        /* ──────────────────────────────────────────────────── */
+
+.message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
         .message span pre { background:rgba(3,6,2,0.88); padding:10px; border-radius:3px; overflow-x:auto; margin:8px 0; border:1px solid var(--b-brass); font-family:'Share Tech Mono',monospace; font-size:0.83rem; }
         .message span code { background:rgba(196,154,10,0.09); color:var(--brass-light); padding:2px 5px; border-radius:2px; font-family:'Share Tech Mono',monospace; font-size:0.86em; }
         .message span pre code { background:transparent; color:#96cc84; padding:0; }
