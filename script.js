@@ -36,14 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // ESTADO DOS FILTROS (padrões = botões marcados .active no HTML)
     // ============================================================
     const filters = {
-        forca:   'BOPE',
-        vetor:   'Estratégias Táticas',
+        forca:   'Geral',
+        vetor:   'Geral',
         conduta: 'Formal',
         extensao:'Resumo Direto',
     };
 
     // Mapeamento Força → classe CSS de tema
     const FORCE_THEME = {
+        'Geral':       'force-federal',
         'BOPE':        'force-police',
         'PM':          'force-police',
         'PC':          'force-police',
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cor do rótulo de força no header do chat
     const FORCE_COLOR = {
+        'Geral':       '#ccc8a8',
         'BOPE':        '#6aad4a',
         'PM':          '#6aad4a',
         'PC':          '#6aad4a',
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Legenda curta para o badge de Vetor
     const VETOR_SHORT = {
+        'Geral':               'ABERTO',
         'Estratégias Táticas': 'TÁTICAS',
         'Concurso Público':    'CONCURSO',
         'Requisitos Mínimos':  'REQUIS.',
