@@ -270,16 +270,21 @@
             <div class="flex flex-col gap-1.5">
                 <span class="font-mono text-[#7a7055] text-[0.58rem] tracking-widest uppercase
                              pb-1 border-b border-[rgba(196,154,10,0.10)]">① FORÇA OPERACIONAL</span>
-                <div class="grid grid-cols-5 gap-1">
-                    <button class="filter-btn glow-bone active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Geral">GERAL</button>
-                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="BOPE">BOPE</button>
-                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PM">PM</button>
-                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PC">PC</button>
-                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PF">PF</button>
-                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PRF">PRF</button>
-                    <button class="filter-btn glow-olive        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Exército">EXÉ</button>
-                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Aeronáutica">FAB</button>
-                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Marinha">MAR</button>
+                <div class="grid grid-cols-4 gap-1">
+                    <!-- Linha 1: Geral + Polícias Estaduais -->
+                    <button class="filter-btn glow-bone active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Geral"       title="Consulta Geral">GERAL</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="BOPE"        title="Batalhão de Operações Policiais Especiais">BOPE</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PM"          title="Polícia Militar">PM</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PC"          title="Polícia Civil">PC</button>
+                    <!-- Linha 2: Forças Federais + GM -->
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PF"          title="Polícia Federal">PF</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PRF"         title="Polícia Rodoviária Federal">PRF</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="PPF"         title="Polícia Penal Federal">PPF</button>
+                    <button class="filter-btn glow-green        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="GM"          title="Guarda Municipal">GM</button>
+                    <!-- Linha 3: Forças Armadas -->
+                    <button class="filter-btn glow-olive        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Exército"    title="Exército Brasileiro">EXÉ</button>
+                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Aeronáutica" title="Força Aérea Brasileira">FAB</button>
+                    <button class="filter-btn glow-blue         font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="forca" data-value="Marinha"     title="Marinha do Brasil">MAR</button>
                 </div>
             </div>
 
@@ -294,7 +299,8 @@
                     <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Requisitos Mínimos">REQUIS.</button>
                     <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Operações">OPS</button>
                     <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Cargos">CARGOS</button>
-                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Rotina">ROTINA</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Rotina"               title="Rotina e Escalas">ROTINA</button>
+                    <button class="filter-btn glow-brass        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="vetor" data-value="Legislação"           title="Legislação e Direitos">LEGIS.</button>
                 </div>
             </div>
 
@@ -304,7 +310,7 @@
                              pb-1 border-b border-[rgba(196,154,10,0.10)]">③ CONDUTA DO ASSISTENTE</span>
                 <div class="grid grid-cols-2 gap-1">
                     <button class="filter-btn glow-bone active font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="conduta" data-value="Formal">FORMAL</button>
-                    <button class="filter-btn glow-bone        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="conduta" data-value="Informal (Policial Raiz)">RAIZ 🪖</button>
+                    <button class="filter-btn glow-bone        font-mono text-[0.58rem] uppercase text-center py-1.5 px-0.5 bg-[rgba(0,0,0,0.32)] border border-[rgba(255,255,255,0.055)] rounded-sm text-[#4a4030] cursor-pointer leading-tight" data-group="conduta" data-value="Informal (Policial Raiz)">RAIZ </button>
                 </div>
             </div>
 

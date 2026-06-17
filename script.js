@@ -50,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'PC':          'force-police',
         'PF':          'force-federal',
         'PRF':         'force-federal',
+        'PPF':         'force-federal',   // Polícia Penal Federal → tema federal
+        'GM':          'force-police',    // Guarda Municipal → tema police
         'Exército':    'force-army',
         'Aeronáutica': 'force-air',
         'Marinha':     'force-naval',
@@ -63,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'PC':          '#6aad4a',
         'PF':          '#e8c244',
         'PRF':         '#e8c244',
+        'PPF':         '#e8c244',   // Polícia Penal Federal → dourado federal
+        'GM':          '#6aad4a',   // Guarda Municipal → verde policial
         'Exército':    '#a0cc78',
         'Aeronáutica': '#82b8f8',
         'Marinha':     '#82b8f8',
@@ -84,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Operações':           'OPS',
         'Cargos':              'CARGOS',
         'Rotina':              'ROTINA',
+        'Legislação':          'LEGIS.',   // Novo: Legislação e Direitos
     };
 
     // ============================================================
